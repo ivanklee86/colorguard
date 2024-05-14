@@ -35,10 +35,10 @@ jobs:
       run: |
         task test-ci
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v1
+      uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
-        files: report.xunit
+        files: report.xml
     # - name: notify-tests
     #   uses: ivanklee86/xunit-slack-reporter@v1.4.0
     #   if: always()
