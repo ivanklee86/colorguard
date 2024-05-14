@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.6
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+          ~/Library/Caches/go-build
+          %LocalAppData%\go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    - name: Install all dependencies
+      run: |
+        go get ./...
+        go install github.com/jstemmer/go-junit-report
+    - name: Run tests.
+      run: go test -covermode atomic --coverprofile coverage.out -v ./... 2>&1 | go-junit-report > report.xunit
+    - name: Generate coverage report.
+      run: go tool cover -html=coverage.out -o coverage.html
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: always()
+      with:
+        files: report.xunit
+    # - name: notify-tests
+    #   uses: ivanklee86/xunit-slack-reporter@v1.4.0
+    #   if: always()
+    #   env:
+    #     EXIT_CODE_FROM_REPORT: "False"
+    #     ONLY_NOTIFY_ON_ISSUES: "True"
+    #     SLACK_CHANNEL: CKQ7C7KJN
+    #     SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+    #     XUNIT_PATH: ./report.xunit
+    - name: Generate lcov coverage report.
+      uses: jandelgado/gcov2lcov-action@v1.0.5
+    - name: Coveralls 
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: coverage.lcov
+    - name: Save artifacts.
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: Coverage report.
+        path: ./coverage.html
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16.x
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Generate format report.
+      run: gofmt -d .
+    - name: Run format again (so job will error if format issues found).
+      run: test -z $(gofmt -l .)
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: latest
