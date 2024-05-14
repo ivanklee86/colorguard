@@ -19,3 +19,8 @@
 
 # Go workspace file
 go.work
+
+# Test files
+coverage.html
+coverage.out
+report.xml
