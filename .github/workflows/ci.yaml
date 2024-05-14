@@ -44,7 +44,7 @@ jobs:
       with:
         files: report.xml
     - name: Generate lcov coverage report.
-      uses: jandelgado/gcov2lcov-action@v1.0.5
+      uses: jandelgado/gcov2lcov-action@v1.0.9
     - name: Coveralls 
       uses: coverallsapp/github-action@master
       with:
