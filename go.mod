@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
-	github.com/jedib0t/go-pretty/v6 v6.5.9
+	github.com/jedib0t/go-pretty/v6 v6.6.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0
